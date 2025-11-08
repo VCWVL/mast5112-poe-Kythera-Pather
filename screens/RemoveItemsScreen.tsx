@@ -213,8 +213,8 @@ export default function RemoveItemsScreen({ navigation, route, menuItems, setMen
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    minHeight: '100%',
+  container: {
+    flex: 1,
   },
   overlay: { 
     flex: 1, 

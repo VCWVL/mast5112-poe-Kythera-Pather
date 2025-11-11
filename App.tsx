@@ -44,7 +44,7 @@ export type RootStackParamList = {
   Menu: { isAdmin?: boolean; openEdit?: boolean; openFilter?: boolean; };
   ManageMenu: { currentMenuItems: MenuItem[]; currentDrinksData: DrinksData }; // Updated for combined screen
   FilterByCourse: { currentMenuItems: MenuItem[]; currentDrinksData: DrinksData };
-  Checkout: undefined; // No longer needs params, it will get state from props
+  Checkout: undefined; // Checkout screen gets orderedItems from global state, no route params needed
 };
 
 // Create the stack navigator 

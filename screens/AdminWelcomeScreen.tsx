@@ -38,8 +38,8 @@ export default function WelcomeChefScreen({ navigation, menuItems, drinksData }:
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate("ManageMenu", {} as any)}
+            style={styles.button} // Pass currentMenuItems and currentDrinksData
+            onPress={() => navigation.navigate("ManageMenu", { currentMenuItems: menuItems || [], currentDrinksData: drinksData! })}
           >
             <Text style={styles.buttonText}>Manage Menu</Text>
           </TouchableOpacity>

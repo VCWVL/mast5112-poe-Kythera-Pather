@@ -1,21 +1,10 @@
 import React, { useState, useCallback, useMemo } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ImageBackground,
-  SectionList,
+import {View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform, ImageBackground, SectionList,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Picker } from "@react-native-picker/picker";
 import { ScreenProps, Course, MenuItem, DrinksData, DrinkItem } from "../App";
+import { useMenuStats } from "./useMenuStats";
 
 type Props = ScreenProps<'ManageMenu'>;
 
@@ -41,6 +30,9 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
 
   // State for removing items
   const [itemsToRemove, setItemsToRemove] = useState<Set<string>>(new Set());
+
+  // Use the custom hook for menu statistics
+  const { totalItemCount, getAveragePrice, getAverageDrinkPrice } = useMenuStats(menuItems, drinksData);
 
   // Determine if the selected course for adding is a drink
   const isDrink = selectedCourse === 'Hot Drink' || selectedCourse === 'Cold Drink';
@@ -149,22 +141,6 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
     Alert.alert("Changes Saved", "The selected items have been removed from the menu.");
   };
 
-  // --- Shared Utility Functions ---
-  const getAveragePrice = useCallback((course: Course): number => {
-    const courseItems = menuItems.filter(item => item.course === course);
-    if (courseItems.length === 0) return 0;
-    const total = courseItems.reduce((sum, item) => sum + item.price, 0);
-    return total / courseItems.length;
-  }, [menuItems]);
-
-  // Function to calculate average price for drinks
-  const getAverageDrinkPrice = (drinkType: 'Hot drinks' | 'Cold drinks'): number => {
-    const drinkItems = drinksData[drinkType];
-    if (drinkItems.length === 0) return 0;
-    const total = drinkItems.reduce((sum, item) => sum + item.price, 0);
-    return total / drinkItems.length;
-  };
-
   // Prepare sections for SectionList (for displaying/removing)
   const menuSections = useMemo(() => {
     const groupedMenu = menuItems.reduce((acc, item) => {
@@ -244,9 +220,6 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
 
   // Header component for the removal section, showing stats
   const RemovalListHeader = () => {
-    const totalDrinkCount = drinksData['Cold drinks'].length + drinksData['Hot drinks'].length;
-    const totalItemCount = menuItems.length + totalDrinkCount;
-
     return (
       <>
         <View style={styles.statsContainer}>

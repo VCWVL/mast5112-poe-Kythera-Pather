@@ -2,9 +2,11 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground, FlatList, Alert } from 'react-native';
 import { ScreenProps, MenuItem } from '../App';
 
-type Props = {
+type Props = { // Define specific props for CheckoutScreen
+  // These are standard navigation props
   navigation: ScreenProps<'Checkout'>['navigation'];
   route: ScreenProps<'Checkout'>['route'];
+  // These are the global state props that CheckoutScreen actually uses
   orderedItems: MenuItem[];
   setOrderedItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
 };

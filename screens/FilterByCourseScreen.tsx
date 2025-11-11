@@ -5,7 +5,7 @@ import { ScreenProps, MenuItem, Course, DrinkItem } from '../App';
 type Props = ScreenProps<'FilterByCourse'>;
 
 // Define filter categories including 'All' and specific courses
-const filterCategories: ('All' | Course)[] = ['All', 'Specials', 'Starter', 'Main Course', 'Dessert', 'Drinks']; // Keep this line
+const filterCategories: ('All' | Course)[] = ['All', 'Specials', 'Starter', 'Main Course', 'Dessert', 'Drinks'];
 
 // The filter by course screen component 
 export default function FilterByCourseScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData, orderedItems, setOrderedItems }: Props) {
@@ -79,7 +79,7 @@ export default function FilterByCourseScreen({ navigation, route, menuItems, set
             </TouchableOpacity>
           </View>
         ))}
-        
+        {/* Hot drinks section */}
         <Text style={[styles.drinksSubHeader, { marginTop: 15 }]}>Hot drinks</Text>
         {currentDrinksData['Hot drinks'].map((drink, index) => (
           <View key={`hot-${index}`} style={styles.drinkItem}>

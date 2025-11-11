@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground, Alert, ScrollView, SectionList } from 'react-native';
 import { ScreenProps, MenuItem, Course, DrinkItem } from '../App';
+import { useMenuStats } from './useMenuStats';
 
 type Props = ScreenProps<'Menu'>;
 
@@ -16,24 +17,7 @@ const predefinedCourses: Course[] = [
 // Main App componetent for displaying the menu
 export default function MenuScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData, orderedItems, setOrderedItems }: Props) {
   const isAdmin = route.params?.isAdmin;
-
-  // Function to calculate average price for a given course
-  const getAveragePrice = (course: Course): number => {
-    const courseItems = menuItems.filter(item => item.course === course);
-    if (courseItems.length === 0) {
-      return 0;
-    }
-    const total = courseItems.reduce((sum, item) => sum + item.price, 0);
-    return total / courseItems.length;
-  };
-
-  // Function to calculate average price for drinks
-  const getAverageDrinkPrice = (drinkType: 'Hot drinks' | 'Cold drinks'): number => {
-    const drinkItems = drinksData[drinkType];
-    if (drinkItems.length === 0) return 0;
-    const total = drinkItems.reduce((sum, item) => sum + item.price, 0);
-    return total / drinkItems.length;
-  };
+  const { totalItemCount, getAveragePrice, getAverageDrinkPrice } = useMenuStats(menuItems, drinksData);
 
   // Group menu items by course for SectionList
   const groupedMenu = menuItems.reduce((acc, item) => {
@@ -78,9 +62,6 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
 
   // Header component displaying logo, title, navigation buttons, and stats
   const ListHeader = () => {
-    const totalDrinkCount = drinksData['Cold drinks'].length + drinksData['Hot drinks'].length;
-    const totalItemCount = menuItems.length + totalDrinkCount;
-
     return (
       <>
         <View style={styles.header}>

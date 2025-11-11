@@ -1,24 +1,49 @@
-import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground, FlatList } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground, FlatList, Alert } from 'react-native';
 import { ScreenProps, MenuItem } from '../App';
 
-type Props = ScreenProps<'Checkout'>;
+type Props = {
+  navigation: ScreenProps<'Checkout'>['navigation'];
+  route: ScreenProps<'Checkout'>['route'];
+  orderedItems: MenuItem[];
+  setOrderedItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
+};
 
-export default function CheckoutScreen({ navigation, route }: Props) {
-  // Assume orderedItems are passed via route params. Default to empty array if not provided.
-  const { orderedItems = [] } = route.params || {};
-
+export default function CheckoutScreen({ navigation, route, orderedItems, setOrderedItems }: Props) {
   // Calculate total amount of ordered items 
   const totalAmount = useMemo(() => {
     return orderedItems.reduce((sum, item) => sum + item.price, 0);
   }, [orderedItems]);
 
+  // Function to handle removing an item from the order
+  const handleRemoveItem = (itemToRemove: MenuItem) => {
+    // We only remove the first instance of the item found.
+    const indexToRemove = orderedItems.findIndex(item => item.id === itemToRemove.id);
+    if (indexToRemove > -1) {
+      const newOrderedItems = [...orderedItems];
+      newOrderedItems.splice(indexToRemove, 1);
+      setOrderedItems(newOrderedItems);
+      Alert.alert("Item Removed", `${itemToRemove.name} has been removed from your order.`);
+    }
+  };
+
   // Render each ordered item 
   const renderOrderItem = ({ item }: { item: MenuItem }) => (
     <View style={styles.itemBox}>
-      <Text style={styles.itemText}>{item.name} - R{item.price.toFixed(0)}</Text>
+      <View style={styles.itemDetails}>
+        <Text style={styles.itemText}>{item.name} - R{item.price.toFixed(0)}</Text>
+        <TouchableOpacity style={styles.removeButton} onPress={() => handleRemoveItem(item)}>
+          <Text style={styles.removeButtonText}>Remove</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
+
+  // Function to handle logout: clears the order and navigates to login
+  const handleLogout = () => {
+    setOrderedItems([]); // Clear the central order state
+    navigation.navigate('Login');
+  };
 
   return (
     // Give a background image to the checkout screen
@@ -49,7 +74,7 @@ export default function CheckoutScreen({ navigation, route }: Props) {
           <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate('Menu', {})}>
             <Text style={styles.footerButtonText}>Menu</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('Login')}>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Text style={styles.footerButtonText}>Logout</Text>
           </TouchableOpacity>
         </View>
@@ -102,8 +127,14 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     marginBottom: 10,
   },
+  itemDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   itemText: {
     fontSize: 16,
+    flex: 1, // Allow text to take up available space
   },
   emptyText: {
     textAlign: 'center',
@@ -153,5 +184,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  removeButton: {
+    backgroundColor: '#dc3545', // A red color for removal
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+    marginLeft: 10,
+  },
+  removeButtonText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
   },
 });

@@ -5,13 +5,12 @@ import { ScreenProps, MenuItem, Course, DrinkItem } from '../App';
 type Props = ScreenProps<'FilterByCourse'>;
 
 // Define filter categories including 'All' and specific courses
-const filterCategories: ('All' | Course)[] = ['All', 'Specials', 'Starter', 'Main Course', 'Dessert', 'Drinks'];
+const filterCategories: ('All' | Course)[] = ['All', 'Specials', 'Starter', 'Main Course', 'Dessert', 'Drinks']; // Keep this line
 
 // The filter by course screen component 
-export default function FilterByCourseScreen({ navigation, route }: Props) {
+export default function FilterByCourseScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData, orderedItems, setOrderedItems }: Props) {
   const { currentMenuItems, currentDrinksData } = route.params;
   const [activeFilter, setActiveFilter] = useState<'All' | Course>('All');
-  const [orderedItems, setOrderedItems] = useState<MenuItem[]>([]);
 
   // Memoized filtered items based on active filter 
   const filteredItems = useMemo(() => {
@@ -138,7 +137,7 @@ export default function FilterByCourseScreen({ navigation, route }: Props) {
         </ScrollView>
 
         <View style={styles.footerContainer}>
-          <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('Checkout', { orderedItems })}>
+          <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('Checkout')}>
             <Text style={styles.footerButtonText}>Go to Checkout ({orderedItems.length})</Text>
           </TouchableOpacity>
 

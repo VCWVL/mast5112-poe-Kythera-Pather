@@ -1,12 +1,13 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet, ImageBackground, ScrollView } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../App";
+import { RootStackParamList, ScreenProps } from "../App";
 
 type AdminNavProp = StackNavigationProp<RootStackParamList, "WelcomeChef">;
-type Props = { navigation: AdminNavProp };
+// Use a partial ScreenProps to get access to menuItems and drinksData
+type Props = { navigation: AdminNavProp } & Partial<Pick<ScreenProps<'WelcomeChef'>, 'menuItems' | 'drinksData'>>;
 
-export default function WelcomeChefScreen({ navigation }: Props) {
+export default function WelcomeChefScreen({ navigation, menuItems, drinksData }: Props) {
   return (
     <ImageBackground
     // Make sure you have a background.jpg in your assets folder
@@ -31,7 +32,7 @@ export default function WelcomeChefScreen({ navigation }: Props) {
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate("FilterByCourse", {} as any)}
+            onPress={() => navigation.navigate("FilterByCourse", { currentMenuItems: menuItems || [], currentDrinksData: drinksData! })}
           >
             <Text style={styles.buttonText}>Filter by Course</Text>
           </TouchableOpacity>

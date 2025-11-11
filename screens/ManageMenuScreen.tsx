@@ -52,8 +52,8 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
       return;
     }
 
-    if (!description || !price) {
-      Alert.alert("Incomplete Form", "Please fill out all fields for the food item.");
+    if ((!isDrink && !description) || !price) {
+      Alert.alert("Incomplete Form", "Please fill out all required fields.");
       return;
     }
 
@@ -70,7 +70,7 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
           Alert.alert("Duplicate Item", `${dishName} already exists in ${drinkCategory}.`);
           return prevDrinks;
         }
-        const newDrinks = [...prevDrinks[drinkCategory], dishName];
+        const newDrinks = [...prevDrinks[drinkCategory], newDrink];
         return { ...prevDrinks, [drinkCategory]: newDrinks };
       });
       Alert.alert("Success", `${dishName} has been added to ${drinkCategory}.`);
@@ -206,42 +206,38 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
      <View>
        <Text style={styles.courseHeader}>Drinks</Text>
        <View style={styles.drinksContainer}>
-         <View style={styles.drinksColumn}>
-           <Text style={styles.drinksSubHeader}>Cold drinks</Text>
-           {drinksData['Cold drinks'].map((drink, index) => {
-             const drinkId = `cold-${drink.name.replace(/\s+/g, '-')}`;
-             const isMarkedForRemoval = itemsToRemove.has(drinkId);
-             return (
-               <View key={index} style={[styles.drinkItem, isMarkedForRemoval && styles.itemMarkedForRemoval]}>
-                 <Text style={styles.drinkText}>{drink.name} - R{drink.price}</Text>
-                 <TouchableOpacity
-                   style={[styles.drinkRemoveButton, isMarkedForRemoval && styles.removeButtonActive]}
-                   onPress={() => toggleItemForRemoval(drinkId)}
-                 >
-                   <Text style={styles.drinkRemoveButtonText}>{isMarkedForRemoval ? 'UNDO' : 'REMOVE'}</Text>
-                 </TouchableOpacity>
-               </View>
-             );
-           })}
-         </View>
-         <View style={styles.drinksColumn}>
-           <Text style={styles.drinksSubHeader}>Hot drinks</Text>
-           {drinksData['Hot drinks'].map((drink, index) => {
-             const drinkId = `hot-${drink.name.replace(/\s+/g, '-')}`;
-             const isMarkedForRemoval = itemsToRemove.has(drinkId);
-             return (
-               <View key={index} style={[styles.drinkItem, isMarkedForRemoval && styles.itemMarkedForRemoval]}>
-                 <Text style={styles.drinkText}>{drink.name} - R{drink.price}</Text>
-                 <TouchableOpacity
-                   style={[styles.drinkRemoveButton, isMarkedForRemoval && styles.removeButtonActive]}
-                   onPress={() => toggleItemForRemoval(drinkId)}
-                 >
-                   <Text style={styles.drinkRemoveButtonText}>{isMarkedForRemoval ? 'UNDO' : 'REMOVE'}</Text>
-                 </TouchableOpacity>
-               </View>
-             );
-           })}
-         </View>
+         <Text style={styles.drinksSubHeader}>Cold drinks</Text>
+         {drinksData['Cold drinks'].map((drink, index) => {
+           const drinkId = `cold-${drink.name.replace(/\s+/g, '-')}`;
+           const isMarkedForRemoval = itemsToRemove.has(drinkId);
+           return (
+             <View key={`cold-${index}`} style={[styles.drinkItem, isMarkedForRemoval && styles.itemMarkedForRemoval]}>
+               <Text style={styles.drinkText}>{drink.name} - R{drink.price}</Text>
+               <TouchableOpacity
+                 style={[styles.drinkRemoveButton, isMarkedForRemoval && styles.removeButtonActive]}
+                 onPress={() => toggleItemForRemoval(drinkId)}
+               >
+                 <Text style={styles.drinkRemoveButtonText}>{isMarkedForRemoval ? 'UNDO' : 'REMOVE'}</Text>
+               </TouchableOpacity>
+             </View>
+           );
+         })}
+         <Text style={[styles.drinksSubHeader, { marginTop: 15 }]}>Hot drinks</Text>
+         {drinksData['Hot drinks'].map((drink, index) => {
+           const drinkId = `hot-${drink.name.replace(/\s+/g, '-')}`;
+           const isMarkedForRemoval = itemsToRemove.has(drinkId);
+           return (
+             <View key={`hot-${index}`} style={[styles.drinkItem, isMarkedForRemoval && styles.itemMarkedForRemoval]}>
+               <Text style={styles.drinkText}>{drink.name} - R{drink.price}</Text>
+               <TouchableOpacity
+                 style={[styles.drinkRemoveButton, isMarkedForRemoval && styles.removeButtonActive]}
+                 onPress={() => toggleItemForRemoval(drinkId)}
+               >
+                 <Text style={styles.drinkRemoveButtonText}>{isMarkedForRemoval ? 'UNDO' : 'REMOVE'}</Text>
+               </TouchableOpacity>
+             </View>
+           );
+         })}
        </View>
      </View>
   );
@@ -579,17 +575,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   drinksContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
     borderWidth: 1,
     borderColor: '#333',
     padding: 10,
     borderRadius: 8,
     marginTop: 10,
     backgroundColor: 'rgba(255,255,255,0.9)',
-  },
-  drinksColumn: {
-    width: '48%',
   },
   drinksSubHeader: {
     fontSize: 14,

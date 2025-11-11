@@ -44,7 +44,7 @@ export type RootStackParamList = {
   Menu: { isAdmin?: boolean; openEdit?: boolean; openFilter?: boolean; };
   ManageMenu: { currentMenuItems: MenuItem[]; currentDrinksData: DrinksData }; // Updated for combined screen
   FilterByCourse: { currentMenuItems: MenuItem[]; currentDrinksData: DrinksData };
-  Checkout: { orderedItems: MenuItem[] };
+  Checkout: undefined; // No longer needs params, it will get state from props
 };
 
 // Create the stack navigator 
@@ -58,6 +58,8 @@ export type ScreenProps<T extends keyof RootStackParamList> = {
   setMenuItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
   drinksData: DrinksData;
   setDrinksData: React.Dispatch<React.SetStateAction<DrinksData>>;
+  orderedItems: MenuItem[];
+  setOrderedItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
 };
 
 export default function App() {
@@ -133,6 +135,9 @@ export default function App() {
     ],
   });
 
+  // Central state for the customer's order
+  const [orderedItems, setOrderedItems] = useState<MenuItem[]>([]);
+
   return (
     <NavigationContainer>
       <StatusBar style="auto" />
@@ -153,36 +158,37 @@ export default function App() {
 
         <Stack.Screen
           name="WelcomeChef"
-          component={WelcomeChefScreen}
           options={{ title: "Welcome Chef" }}
-        />
+        >
+          {(props) => <WelcomeChefScreen {...props} menuItems={menuItems} drinksData={drinksData} />}
+        </Stack.Screen>
 
         <Stack.Screen
           name="Menu"
           options={{ title: "Menu" }}
         >
-          {(props) => <MenuScreen {...props} menuItems={menuItems} setMenuItems={setMenuItems} drinksData={drinksData} setDrinksData={setDrinksData} />}
+          {(props) => <MenuScreen {...props} menuItems={menuItems} setMenuItems={setMenuItems} drinksData={drinksData} setDrinksData={setDrinksData} orderedItems={orderedItems} setOrderedItems={setOrderedItems} />}
         </Stack.Screen>
 
         <Stack.Screen
           name="ManageMenu" // New screen name
           options={{ title: "Manage Menu" }} // New title
         >
-          {(props) => <ManageMenuScreen {...props} menuItems={menuItems} setMenuItems={setMenuItems} drinksData={drinksData} setDrinksData={setDrinksData} />}
+          {(props) => <ManageMenuScreen {...props} menuItems={menuItems} setMenuItems={setMenuItems} drinksData={drinksData} setDrinksData={setDrinksData} orderedItems={orderedItems} setOrderedItems={setOrderedItems} />}
         </Stack.Screen>
 
         <Stack.Screen
           name="FilterByCourse"
           options={{ title: "Filter By Course" }}
         >
-          {(props) => <FilterByCourseScreen {...props} menuItems={menuItems} setMenuItems={setMenuItems} drinksData={drinksData} setDrinksData={setDrinksData} />}
+          {(props) => <FilterByCourseScreen {...props} menuItems={menuItems} setMenuItems={setMenuItems} drinksData={drinksData} setDrinksData={setDrinksData} orderedItems={orderedItems} setOrderedItems={setOrderedItems} />}
         </Stack.Screen>
 
         <Stack.Screen
           name="Checkout"
           options={{ title: "Checkout" }}
         >
-          {(props) => <CheckoutScreen {...props} menuItems={menuItems} setMenuItems={setMenuItems} drinksData={drinksData} setDrinksData={setDrinksData} />}
+          {(props) => <CheckoutScreen {...props} orderedItems={orderedItems} setOrderedItems={setOrderedItems} />}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>

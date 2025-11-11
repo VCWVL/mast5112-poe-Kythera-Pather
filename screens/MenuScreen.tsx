@@ -14,8 +14,7 @@ const predefinedCourses: Course[] = [
 ];
 
 // Main App componetent for displaying the menu
-export default function MenuScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData }: Props) {
-  const [orderedItems, setOrderedItems] = useState<MenuItem[]>([]);
+export default function MenuScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData, orderedItems, setOrderedItems }: Props) {
   const isAdmin = route.params?.isAdmin;
 
   // Function to calculate average price for a given course
@@ -93,7 +92,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
               <Text style={styles.headerNavText}>Filter by course</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('Checkout', { orderedItems })}>
+            <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('Checkout')}>
               <Text style={styles.headerNavText}>Checkout ({orderedItems.length})</Text>
             </TouchableOpacity>
             {isAdmin && (
@@ -102,9 +101,6 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
               </TouchableOpacity>
             )}
 
-            <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.goBack()}>
-              <Text style={styles.headerNavText}>Back</Text>
-            </TouchableOpacity>
           </View>
         </View>
         <View style={styles.statsContainer}>
@@ -147,30 +143,25 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
     <View>
       <Text style={styles.courseHeader}>Drinks</Text>
       <View style={styles.drinksContainer}>
-        <View style={styles.drinksColumn}>
-          <Text style={styles.drinksSubHeader}>Cold drinks</Text>
-          {drinksData['Cold drinks'].map((drink, index) => { // Use drinksData from props
-            return (
-              <View key={index} style={styles.drinkItem}>
-                <Text style={styles.drinkText}>{drink.name} - R{drink.price}</Text>
-                <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)} >
-                  <Text style={styles.checkoutButtonText}>Add</Text>
-                </TouchableOpacity>
-              </View>
-            );
-          })}
-        </View>
-        <View style={styles.drinksColumn}>
-          <Text style={styles.drinksSubHeader}>Hot drinks</Text>
-          {drinksData['Hot drinks'].map((drink, index) => ( // Use drinksData from props
-            <View key={index} style={styles.drinkItem}>
-              <Text style={styles.drinkText}>{drink.name} - R{drink.price}</Text>
-              <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)} >
-                <Text style={styles.checkoutButtonText}>Add</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
+        <Text style={styles.drinksSubHeader}>Cold drinks</Text>
+        {drinksData['Cold drinks'].map((drink, index) => (
+          <View key={`cold-${index}`} style={styles.drinkItem}>
+            <Text style={styles.drinkText}>{drink.name} - R{drink.price}</Text>
+            <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
+              <Text style={styles.checkoutButtonText}>Add</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+        
+        <Text style={[styles.drinksSubHeader, { marginTop: 15 }]}>Hot drinks</Text>
+        {drinksData['Hot drinks'].map((drink, index) => (
+          <View key={`hot-${index}`} style={styles.drinkItem}>
+            <Text style={styles.drinkText}>{drink.name} - R{drink.price}</Text>
+            <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
+              <Text style={styles.checkoutButtonText}>Add</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -340,17 +331,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   drinksContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
     borderWidth: 1,
     borderColor: '#333',
     padding: 10,
     borderRadius: 8,
     marginTop: 10,
     backgroundColor: '#fff',
-  },
-  drinksColumn: {
-    width: '45%',
   },
   drinksSubHeader: {
     fontSize: 14,

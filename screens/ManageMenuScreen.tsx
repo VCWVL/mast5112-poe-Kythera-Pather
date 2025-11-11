@@ -231,8 +231,7 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
             <Text style={styles.statTitle}>Avg price per course</Text>
             {displayCourses.filter(c => c !== 'Drinks').map(course => {
               const avg = getAveragePrice(course);
-              if (avg > 0) { return <Text key={course} style={styles.statValueSmall}>{course}: R{avg.toFixed(0)}</Text>; }
-              return null;
+              return avg > 0 ? <Text key={course} style={styles.statValueSmall}>{course}: R{avg.toFixed(0)}</Text> : null;
             })}
             <Text key="hot-drinks-avg" style={styles.statValueSmall}>Hot Drinks: R{getAverageDrinkPrice('Hot drinks').toFixed(0)}</Text>
             <Text key="cold-drinks-avg" style={styles.statValueSmall}>Cold Drinks: R{getAverageDrinkPrice('Cold drinks').toFixed(0)}</Text>
@@ -428,14 +427,14 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   uploadButton: {
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#577c7cff',
     paddingVertical: 15,
     paddingHorizontal: 50,
     borderRadius: 20,
     marginBottom: 15,
   },
   saveButton: { // For adding item
-    backgroundColor: '#4CAF50', // Green for add
+    backgroundColor: '#c98b2fff', // Green for add
     paddingVertical: 12,
     paddingHorizontal: 40,
     borderRadius: 20,
@@ -590,26 +589,27 @@ const styles = StyleSheet.create({
   footerButtons: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    alignItems: 'center',
     marginTop: 30,
     paddingHorizontal: 10,
-    width: '100%',
+    width: '100%', 
   },
   saveChangesButton: {
-    backgroundColor: '#007bff', // Blue for save changes
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    backgroundColor: '#6c86a1ff', // Blue for save changes
+    paddingVertical: 12,
+    paddingHorizontal: 15,
     borderRadius: 20,
   },
   menuHomeButton: {
-    backgroundColor: '#6c757d', // Grey for menu home
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    backgroundColor: '#43644eff', // Grey for menu home
+    paddingVertical: 12,
+    paddingHorizontal: 15,
     borderRadius: 20,
   },
   logoutButton: {
     backgroundColor: '#bd7d1cff', // Distinct color for logout
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 15,
     borderRadius: 20,
   },
   footerButtonText: {

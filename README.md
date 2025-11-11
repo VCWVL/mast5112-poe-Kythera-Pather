@@ -1,6 +1,9 @@
 # Christoffel’s Menu – React Native Application
 
 ---
+### I am using the master since something went wrong when pushed to github thats why there is 2 braches 
+
+---
 
 # Overview
 

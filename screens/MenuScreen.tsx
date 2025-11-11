@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground, Alert, ScrollView, SectionList } from 'react-native';
-import { ScreenProps, MenuItem, Course } from '../App';
+import { ScreenProps, MenuItem, Course, DrinkItem } from '../App';
 
 type Props = ScreenProps<'Menu'>;
 
@@ -18,25 +18,6 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
   const [orderedItems, setOrderedItems] = useState<MenuItem[]>([]);
   const isAdmin = route.params?.isAdmin;
 
-  useEffect(() => {
-    // Handle direct navigation requests from AdminWelcomeScreen
-    if (route.params?.openEdit) {
-      // Use a timeout to ensure the screen has mounted before navigating away; setMenuItems is passed from App.tsx
-      setTimeout(() => navigation.replace('EditMenu', { currentMenuItems: menuItems }), 0);
-    }
-    if (route.params?.openFilter) {
-      // Use a timeout to ensure the screen has mounted before navigating away
-      setTimeout(() => navigation.replace('FilterByCourse', { currentMenuItems: menuItems, currentDrinksData: drinksData }), 0);
-    }
-
-  }, [route.params]);
-
-  // Prevent rendering the menu if we are just passing through to another screen
-  // This stops the "flicker" effect the user sees.
-  if (route.params?.openEdit || route.params?.openFilter) {
-    return null; // Render nothing while the useEffect redirects
-  }
- 
   // Function to calculate average price for a given course
   const getAveragePrice = (course: Course): number => {
     const courseItems = menuItems.filter(item => item.course === course);
@@ -45,6 +26,14 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
     }
     const total = courseItems.reduce((sum, item) => sum + item.price, 0);
     return total / courseItems.length;
+  };
+
+  // Function to calculate average price for drinks
+  const getAverageDrinkPrice = (drinkType: 'Hot drinks' | 'Cold drinks'): number => {
+    const drinkItems = drinksData[drinkType];
+    if (drinkItems.length === 0) return 0;
+    const total = drinkItems.reduce((sum, item) => sum + item.price, 0);
+    return total / drinkItems.length;
   };
 
   // Group menu items by course for SectionList
@@ -108,7 +97,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
               <Text style={styles.headerNavText}>Checkout ({orderedItems.length})</Text>
             </TouchableOpacity>
             {isAdmin && (
-              <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('RemoveItems', { currentMenuItems: menuItems, currentDrinksData: drinksData })}>
+              <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('ManageMenu', { currentMenuItems: menuItems, currentDrinksData: drinksData })}>
                 <Text style={styles.headerNavText}>Remove Items</Text>
               </TouchableOpacity>
             )}
@@ -130,6 +119,8 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
               if (avg > 0) { return <Text key={course} style={styles.statValueSmall}>{course}: R{avg.toFixed(0)}</Text>; }
               return null;
             })}
+            <Text key="hot-drinks-avg" style={styles.statValueSmall}>Hot Drinks: R{getAverageDrinkPrice('Hot drinks').toFixed(0)}</Text>
+            <Text key="cold-drinks-avg" style={styles.statValueSmall}>Cold Drinks: R{getAverageDrinkPrice('Cold drinks').toFixed(0)}</Text>
           </View>
         </View>
       </>
@@ -137,19 +128,18 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
   };
 
   // Function to handle adding drink items to the checkout
-  const handleAddDrinkToCheckout = (drinkName: string) => {
+  const handleAddDrinkToCheckout = (drink: DrinkItem) => {
     const newDrinkItem: MenuItem = {
       // Unique ID for the ordered item
-      id: `drink_${drinkName}_${Date.now()}`, 
-      name: drinkName,
+      id: `drink_${drink.name}_${Date.now()}`, 
+      name: drink.name,
       description: 'A refreshing beverage',
       course: 'Drinks',
-      // Assign a default price for drinks
-      price: 25, 
+      price: drink.price, 
       image: null,
     };
     setOrderedItems(prevItems => [...prevItems, newDrinkItem]);
-    Alert.alert("Item Added", `${drinkName} has been added to your order.`);
+    Alert.alert("Item Added", `${drink.name} has been added to your order.`);
   };
 
   // Render the drinks section separately
@@ -162,8 +152,8 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
           {drinksData['Cold drinks'].map((drink, index) => { // Use drinksData from props
             return (
               <View key={index} style={styles.drinkItem}>
-                <Text style={styles.drinkText}>{drink}</Text>
-                <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
+                <Text style={styles.drinkText}>{drink.name} - R{drink.price}</Text>
+                <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)} >
                   <Text style={styles.checkoutButtonText}>Add</Text>
                 </TouchableOpacity>
               </View>
@@ -174,8 +164,8 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
           <Text style={styles.drinksSubHeader}>Hot drinks</Text>
           {drinksData['Hot drinks'].map((drink, index) => ( // Use drinksData from props
             <View key={index} style={styles.drinkItem}>
-              <Text style={styles.drinkText}>{drink}</Text>
-              <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
+              <Text style={styles.drinkText}>{drink.name} - R{drink.price}</Text>
+              <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)} >
                 <Text style={styles.checkoutButtonText}>Add</Text>
               </TouchableOpacity>
             </View>

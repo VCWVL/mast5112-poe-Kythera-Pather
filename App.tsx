@@ -8,18 +8,23 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import LoginScreen from "./screens/LoginScreen";
 import WelcomeChefScreen from "./screens/AdminWelcomeScreen";
 import MenuScreen from "./screens/MenuScreen"; // Make sure this is imported
-import EditMenuScreen from "./screens/EditMenuScreen";
-import RemoveItemsScreen from "./screens/RemoveItemsScreen";
+import ManageMenuScreen from "./screens/ManageMenuScreen"; // New combined screen
 import FilterByCourseScreen from "./screens/FilterByCourseScreen";
 import CheckoutScreen from "./screens/CheckoutScreen";
 
 // Define a shared Course type
 export type Course = 'Specials' | 'Starter' | 'Main Course' | 'Dessert' | 'Drinks';
 
+// Define a shared DrinkItem type
+export type DrinkItem = {
+  name: string;
+  price: number;
+};
+
 // Define a shared DrinksData type
 export type DrinksData = {
-  'Cold drinks': string[];
-  'Hot drinks': string[];
+  'Cold drinks': DrinkItem[];
+  'Hot drinks': DrinkItem[];
 };
 
 // Define a shared MenuItem type to be used across screens
@@ -37,8 +42,7 @@ export type RootStackParamList = {
   Login: undefined;
   WelcomeChef: undefined;
   Menu: { isAdmin?: boolean; openEdit?: boolean; openFilter?: boolean; };
-  EditMenu: { currentMenuItems: MenuItem[] };
-  RemoveItems: { currentMenuItems: MenuItem[]; currentDrinksData: DrinksData };
+  ManageMenu: { currentMenuItems: MenuItem[]; currentDrinksData: DrinksData }; // Updated for combined screen
   FilterByCourse: { currentMenuItems: MenuItem[]; currentDrinksData: DrinksData };
   Checkout: { orderedItems: MenuItem[] };
 };
@@ -117,8 +121,16 @@ export default function App() {
   ]);
 
   const [drinksData, setDrinksData] = useState<DrinksData>({
-    'Cold drinks': ['Any frizzy drink', "Fruit juice's", 'Ice water'],
-    'Hot drinks': ['Tea', 'Coffee', 'Hot chocolate'],
+    'Cold drinks': [
+      { name: 'Any frizzy drink', price: 25 },
+      { name: "Fruit juice's", price: 30 },
+      { name: 'Ice water', price: 15 }
+    ],
+    'Hot drinks': [
+      { name: 'Tea', price: 20 },
+      { name: 'Coffee', price: 28 },
+      { name: 'Hot chocolate', price: 35 }
+    ],
   });
 
   return (
@@ -153,17 +165,10 @@ export default function App() {
         </Stack.Screen>
 
         <Stack.Screen
-          name="EditMenu"
-          options={{ title: "Edit Menu" }}
+          name="ManageMenu" // New screen name
+          options={{ title: "Manage Menu" }} // New title
         >
-          {(props) => <EditMenuScreen {...props} menuItems={menuItems} setMenuItems={setMenuItems} drinksData={drinksData} setDrinksData={setDrinksData} />}
-        </Stack.Screen>
-
-        <Stack.Screen
-          name="RemoveItems"
-          options={{ title: "Remove Items" }}
-        >
-          {(props) => <RemoveItemsScreen {...props} menuItems={menuItems} setMenuItems={setMenuItems} drinksData={drinksData} setDrinksData={setDrinksData} />}
+          {(props) => <ManageMenuScreen {...props} menuItems={menuItems} setMenuItems={setMenuItems} drinksData={drinksData} setDrinksData={setDrinksData} />}
         </Stack.Screen>
 
         <Stack.Screen

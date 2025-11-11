@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground, FlatList, ScrollView, Alert } from 'react-native';
-import { ScreenProps, MenuItem, Course } from '../App';
+import { ScreenProps, MenuItem, Course, DrinkItem } from '../App';
 
 type Props = ScreenProps<'FilterByCourse'>;
 
@@ -20,7 +20,7 @@ export default function FilterByCourseScreen({ navigation, route }: Props) {
     }
     // Filter items by selected course 
     return currentMenuItems.filter(item => item.course === activeFilter);
-  }, [activeFilter, currentMenuItems]);
+  }, [activeFilter, currentMenuItems]); 
 
   // Render each menu item card 
   const renderMenuItemCard = ({ item }: { item: MenuItem }) => {
@@ -47,22 +47,21 @@ export default function FilterByCourseScreen({ navigation, route }: Props) {
   };
 
   // Function to handle adding drink to checkout 
-  const handleAddDrinkToCheckout = (drinkName: string) => {
+  const handleAddDrinkToCheckout = (drink: DrinkItem) => {
     // Create a MenuItem for the drink 
     const newDrinkItem: MenuItem = {
       // Unique ID for the ordered item
-      id: `drink_${drinkName}_${Date.now()}`, 
-      name: drinkName,
+      id: `drink_${drink.name}_${Date.now()}`, 
+      name: drink.name,
       description: 'A refreshing beverage',
       course: 'Drinks',
-      // Assign a default price for drinks
-      price: 25, 
+      price: drink.price, 
       image: null,
     };
 
     // Add the drink item to ordered items 
     setOrderedItems(prevItems => [...prevItems, newDrinkItem]);
-    Alert.alert("Item Added", `${drinkName} has been added to your order.`);
+    Alert.alert("Item Added", `${drink.name} has been added to your order.`);
   };
 
   // Render the drinks section 
@@ -71,29 +70,26 @@ export default function FilterByCourseScreen({ navigation, route }: Props) {
     <View style={styles.drinksSectionContainer}>
       <Text style={styles.courseHeader}>Drinks</Text>
       <View style={styles.drinksContainer}>
-        <View style={styles.drinksColumn}>
-          <Text style={styles.drinksSubHeader}>Cold drinks</Text>
-          {currentDrinksData['Cold drinks'].map((drink, index) => (
-            // Drink item with add button 
-            <View key={index} style={styles.drinkItem}>
-              <Text style={styles.drinkText}>{drink}</Text>
-              <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
-                <Text style={styles.checkoutButtonText}>Add</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-        <View style={styles.drinksColumn}>
-          <Text style={styles.drinksSubHeader}>Hot drinks</Text>
-          {currentDrinksData['Hot drinks'].map((drink, index) => (
-            <View key={index} style={styles.drinkItem}>
-              <Text style={styles.drinkText}>{drink}</Text>
-              <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
-                <Text style={styles.checkoutButtonText}>Add</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
+        <Text style={styles.drinksSubHeader}>Cold drinks</Text>
+        {currentDrinksData['Cold drinks'].map((drink, index) => (
+          // Drink item with add button 
+          <View key={`cold-${index}`} style={styles.drinkItem}>
+            <Text style={styles.drinkText}>{drink.name} - R{drink.price}</Text>
+            <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
+              <Text style={styles.checkoutButtonText}>Add</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+        
+        <Text style={[styles.drinksSubHeader, { marginTop: 15 }]}>Hot drinks</Text>
+        {currentDrinksData['Hot drinks'].map((drink, index) => (
+          <View key={`hot-${index}`} style={styles.drinkItem}>
+            <Text style={styles.drinkText}>{drink.name} - R{drink.price}</Text>
+            <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
+              <Text style={styles.checkoutButtonText}>Add</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -125,26 +121,31 @@ export default function FilterByCourseScreen({ navigation, route }: Props) {
           </ScrollView>
         </View>
 
-        {activeFilter === 'Drinks' ? (
-          renderDrinksSection()
-        ) : (
-          // It display filtered menu items
-          <FlatList
-            data={filteredItems}
-            renderItem={renderMenuItemCard}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContentContainer}
-            ListEmptyComponent={<Text style={styles.emptyText}>No items found for this course.</Text>}
-          />
-        )}
+        <ScrollView style={styles.contentScrollView}>
+          {activeFilter === 'Drinks' ? (
+            renderDrinksSection()
+          ) : (
+            // It display filtered menu items
+            <FlatList
+              data={filteredItems}
+              renderItem={renderMenuItemCard}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.listContentContainer}
+              ListEmptyComponent={<Text style={styles.emptyText}>No items found for this course.</Text>}
+              scrollEnabled={false} // Disable FlatList's own scroll as it's inside a ScrollView
+            />
+          )}
+        </ScrollView>
 
-        <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('Checkout', { orderedItems })}>
-          <Text style={styles.footerButtonText}>Go to Checkout ({orderedItems.length})</Text>
-        </TouchableOpacity>
+        <View style={styles.footerContainer}>
+          <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('Checkout', { orderedItems })}>
+            <Text style={styles.footerButtonText}>Go to Checkout ({orderedItems.length})</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('Menu', {})}>
-          <Text style={styles.footerButtonText}>Menu</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('Menu', {})}>
+            <Text style={styles.footerButtonText}>Menu</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </ImageBackground>
   );
@@ -157,7 +158,6 @@ const styles = StyleSheet.create({
   overlay: { 
     flex: 1, 
     backgroundColor: 'rgba(255, 255, 255, 0.6)', 
-    paddingBottom: 20 
   },
   header: { 
     flexDirection: 'row', 
@@ -202,6 +202,9 @@ const styles = StyleSheet.create({
   activeFilterText: { 
     color: '#000', 
     fontWeight: 'bold' 
+  },
+  contentScrollView: {
+    flex: 1,
   },
   listContentContainer: { 
     paddingHorizontal: 15, 
@@ -254,11 +257,16 @@ const styles = StyleSheet.create({
     fontSize: 16, 
     color: '#666' 
   },
+  footerContainer: {
+    padding: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+  },
   footerButton: {
     backgroundColor: '#000',
     paddingVertical: 15,
     borderRadius: 8,
-    marginHorizontal: 15,
     alignItems: 'center',
     marginTop: 10, // Adjusted margin
   },
@@ -281,15 +289,12 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   drinksContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
     borderWidth: 1,
     borderColor: '#333',
     padding: 15,
     borderRadius: 8,
     backgroundColor: '#fff',
   },
-  drinksColumn: { width: '45%' },
   drinksSubHeader: {
     fontSize: 14,
     fontWeight: 'bold',
@@ -297,7 +302,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   drinkItem: {
-    marginBottom: 5,
+    marginBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

@@ -24,23 +24,23 @@ export default function WelcomeChefScreen({ navigation }: Props) {
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate("Menu", { isAdmin: true } as any)}
+            onPress={() => navigation.navigate("Menu", { isAdmin: true })}
           >
             <Text style={styles.buttonText}>Menu</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate("Menu", { isAdmin: true, openFilter: true } as any)}
+            onPress={() => navigation.navigate("FilterByCourse", {} as any)}
           >
             <Text style={styles.buttonText}>Filter by Course</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate("Menu", { isAdmin: true, openEdit: true } as any)}
+            onPress={() => navigation.navigate("ManageMenu", {} as any)}
           >
-            <Text style={styles.buttonText}>Edit menu items</Text>
+            <Text style={styles.buttonText}>Manage Menu</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>

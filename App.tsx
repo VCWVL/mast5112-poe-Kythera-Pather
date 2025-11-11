@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 // Import only the screens you want to work on
-import LoginScreen from "./screens/LoginScreen";
+import LoginScreen from "./screens/LoginScreen"; // The first screen the user sees
 import WelcomeChefScreen from "./screens/AdminWelcomeScreen";
 import MenuScreen from "./screens/MenuScreen"; // Make sure this is imported
 import ManageMenuScreen from "./screens/ManageMenuScreen"; // New combined screen
@@ -37,7 +37,7 @@ export type MenuItem = {
   image?: any; // Allow both string URI and require() result
 };
 
-// Define the root stack parameter list for navigation 
+// Defines all the possible screens and what parameters (if any) they can receive
 export type RootStackParamList = {
   Login: undefined;
   WelcomeChef: undefined;
@@ -50,7 +50,7 @@ export type RootStackParamList = {
 // Create the stack navigator 
 const Stack = createStackNavigator<RootStackParamList>();
 
-// Helper type for screen components
+// A helper type to make it easier to define props for each screen component
 export type ScreenProps<T extends keyof RootStackParamList> = {
   navigation: StackNavigationProp<RootStackParamList, T>;
   route: RouteProp<RootStackParamList, T>;
@@ -62,7 +62,10 @@ export type ScreenProps<T extends keyof RootStackParamList> = {
   setOrderedItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
 };
 
+// This is the main component that runs the entire application
 export default function App() {
+  // These 'useState' hooks create the central state for the app.
+  // All screens will share this data, so changes in one screen are seen everywhere.
   // Initialize state for menu items and drinks data used across screens
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
     { id: '1', name: 'Lobster Thermidor', 
@@ -139,6 +142,7 @@ export default function App() {
   const [orderedItems, setOrderedItems] = useState<MenuItem[]>([]);
 
   return (
+    // NavigationContainer is the root of all navigation in the app
     <NavigationContainer>
       <StatusBar style="auto" />
       <Stack.Navigator
@@ -150,6 +154,7 @@ export default function App() {
           headerTitleStyle: { fontWeight: "bold" },
         }}
       >
+        {/* Each Stack.Screen defines a single screen in the navigation stack */}
         <Stack.Screen
           name="Login"
           component={LoginScreen}
@@ -160,6 +165,7 @@ export default function App() {
           name="WelcomeChef"
           options={{ title: "Welcome Chef" }}
         >
+          {/* We pass down the central state to the screens that need it */}
           {(props) => <WelcomeChefScreen {...props} menuItems={menuItems} drinksData={drinksData} />}
         </Stack.Screen>
 
@@ -167,6 +173,7 @@ export default function App() {
           name="Menu"
           options={{ title: "Menu" }}
         >
+          {/* The props include navigation, route, and our custom state props */}
           {(props) => <MenuScreen {...props} menuItems={menuItems} setMenuItems={setMenuItems} drinksData={drinksData} setDrinksData={setDrinksData} orderedItems={orderedItems} setOrderedItems={setOrderedItems} />}
         </Stack.Screen>
 

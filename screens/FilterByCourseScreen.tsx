@@ -12,16 +12,17 @@ export default function FilterByCourseScreen({ navigation, route, menuItems, set
   const { currentMenuItems, currentDrinksData } = route.params;
   const [activeFilter, setActiveFilter] = useState<'All' | Course>('All');
 
-  // Memoized filtered items based on active filter 
+  // Filters the menu items based on the currently selected category.
+  // useMemo prevents re-filtering on every render, improving performance.
   const filteredItems = useMemo(() => {
     if (activeFilter === 'All') {
       return currentMenuItems;
     }
-    // Filter items by selected course 
+    // Filter items by the selected course 
     return currentMenuItems.filter(item => item.course === activeFilter);
   }, [activeFilter, currentMenuItems]); 
 
-  // Render each menu item card 
+  // Renders a single card for a food item
   const renderMenuItemCard = ({ item }: { item: MenuItem }) => {
     const imageSource = typeof item.image === 'string' ? { uri: item.image } : item.image;
 
@@ -45,7 +46,7 @@ export default function FilterByCourseScreen({ navigation, route, menuItems, set
     );
   };
 
-  // Function to handle adding drink to checkout 
+  // Handles adding a drink to the main order list
   const handleAddDrinkToCheckout = (drink: DrinkItem) => {
     // Create a MenuItem for the drink 
     const newDrinkItem: MenuItem = {
@@ -63,7 +64,7 @@ export default function FilterByCourseScreen({ navigation, route, menuItems, set
     Alert.alert("Item Added", `${drink.name} has been added to your order.`);
   };
 
-  // Render the drinks section 
+  // Renders the list of hot and cold drinks
   const renderDrinksSection = () => (
     // Drinks Section 
     <View style={styles.drinksSectionContainer}>
@@ -102,6 +103,7 @@ export default function FilterByCourseScreen({ navigation, route, menuItems, set
           <Text style={styles.headerTitle}>Filter By Course</Text>
         </View>
 
+        {/* A horizontal scrolling list for the filter category buttons */}
         <View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterContainer}>
             {filterCategories.map(category => (
@@ -120,6 +122,7 @@ export default function FilterByCourseScreen({ navigation, route, menuItems, set
           </ScrollView>
         </View>
 
+        {/* The main content area that shows either drinks or filtered food items */}
         <ScrollView style={styles.contentScrollView}>
           {activeFilter === 'Drinks' ? (
             renderDrinksSection()
@@ -136,6 +139,7 @@ export default function FilterByCourseScreen({ navigation, route, menuItems, set
           )}
         </ScrollView>
 
+        {/* Footer buttons for navigation */}
         <View style={styles.footerContainer}>
           <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('Checkout')}>
             <Text style={styles.footerButtonText}>Go to Checkout ({orderedItems.length})</Text>
@@ -267,7 +271,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 10, // Adjusted margin
+    marginTop: 10, 
   },
   footerButtonText: { 
     color: '#fff', 

@@ -13,7 +13,8 @@ export default function LoginScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // This effect runs whenever the screen comes into focus
+  // This hook runs whenever the user navigates to this screen.
+  // It's used here to automatically clear the form fields.
   useFocusEffect(
     useCallback(() => {
       // Clear the input fields
@@ -21,7 +22,7 @@ export default function LoginScreen({ navigation }: Props) {
       setPassword("");
     }, [])
   );
-// Function to handle login button press 
+  // Checks the username and navigates to the correct screen (Admin or Customer)
   const handleLogin = () => {
     if (username.toLowerCase() === "chef") {
       navigation.navigate("WelcomeChef");
@@ -39,6 +40,7 @@ export default function LoginScreen({ navigation }: Props) {
           <Image source={require("../assets/Logo.jpg")} style={styles.logo} />
           <Text style={styles.subtitle}>We hope you have an amazing experience with us</Text>
           
+          {/* The main form for username and password input */}
           <Image source={require("../assets/Menu Banner.jpg")} style={styles.banner} />
 
           <Text style={styles.label}>Username</Text>
@@ -60,6 +62,7 @@ export default function LoginScreen({ navigation }: Props) {
             onChangeText={setPassword}
           />
           
+          {/* The login button that triggers the handleLogin function */}
           <TouchableOpacity style={styles.saveButton} onPress={handleLogin}>
             <Text style={styles.saveText}>Login</Text>
           </TouchableOpacity>

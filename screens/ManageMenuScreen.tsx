@@ -21,24 +21,27 @@ const displayCourses: Course[] = [
 ];
 
 export default function ManageMenuScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData }: Props) {
-  // State for adding new items
+  // State for the "Add New Item" form fields
   const [dishName, setDishName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedCourse, setSelectedCourse] = useState('');
   const [price, setPrice] = useState("");
   const [image, setImage] = useState<string | null>(null);
 
-  // State for removing items
+  // State to keep track of items selected for removal
   const [itemsToRemove, setItemsToRemove] = useState<Set<string>>(new Set());
 
-  // Use the custom hook for menu statistics
+  // Custom hook to get menu statistics (like average prices)
   const { totalItemCount, getAveragePrice, getAverageDrinkPrice } = useMenuStats(menuItems, drinksData);
 
-  // Determine if the selected course for adding is a drink
+  // A helper to check if the selected category is a drink
   const isDrink = selectedCourse === 'Hot Drink' || selectedCourse === 'Cold Drink';
 
   // --- Functions for Adding Items ---
+
+  // Handles adding a new food or drink item to the menu
   const handleAddItem = () => {
+    // Basic validation to ensure required fields are filled
     if (!dishName || !selectedCourse) {
       Alert.alert("Incomplete Form", "Please provide a name and select a course.");
       return;
@@ -49,6 +52,7 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
       return;
     }
 
+    // Logic for adding a drink
     if (isDrink) {
       const drinkCategory = selectedCourse === 'Hot Drink' ? 'Hot drinks' : 'Cold drinks';
       const newDrink: DrinkItem = {
@@ -66,6 +70,7 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
         return { ...prevDrinks, [drinkCategory]: newDrinks };
       });
       Alert.alert("Success", `${dishName} has been added to ${drinkCategory}.`);
+    // Logic for adding a food item
     } else {
       const newItem: MenuItem = {
         id: `menuItem_${Date.now()}`,
@@ -92,7 +97,9 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
     setImage(null);
   };
 
+  // Function to open the device's image library to select a photo
   const pickImage = async () => {
+    // Ask for permission to access photos
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
       Alert.alert("Permission Required", "You need to allow access to your photos to upload an image.");
@@ -106,12 +113,15 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
       quality: 1,
     });
 
+    // If the user doesn't cancel, set the selected image
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
   };
 
   // --- Functions for Removing Items ---
+
+  // Adds or removes an item's ID from the set of items to be deleted
   const toggleItemForRemoval = useCallback((itemId: string) => {
     setItemsToRemove(prevItems => {
       const newItemsToRemove = new Set(prevItems);
@@ -124,24 +134,28 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
     });
   }, []);
 
+  // Finalizes the removal of all selected items
   const handleSaveChanges = () => {
     if (itemsToRemove.size === 0) {
       Alert.alert("No Changes", "No items were selected for removal.");
       return;
     }
 
+    // Filter out the removed food items from the main menu state
     const updatedMenuItems = menuItems.filter(item => !itemsToRemove.has(item.id));
     setMenuItems(updatedMenuItems);
 
+    // Filter out the removed drinks from the drinks state
     const newColdDrinks = drinksData['Cold drinks'].filter(drink => !itemsToRemove.has(`cold-${drink.name.replace(/\s+/g, '-')}`));
     const newHotDrinks = drinksData['Hot drinks'].filter(drink => !itemsToRemove.has(`hot-${drink.name.replace(/\s+/g, '-')}`));
     setDrinksData({ 'Cold drinks': newColdDrinks, 'Hot drinks': newHotDrinks });
 
+    // Clear the removal list and show a success message
     setItemsToRemove(new Set());
     Alert.alert("Changes Saved", "The selected items have been removed from the menu.");
   };
 
-  // Prepare sections for SectionList (for displaying/removing)
+  // Organizes the menu items into sections by course for the SectionList component
   const menuSections = useMemo(() => {
     const groupedMenu = menuItems.reduce((acc, item) => {
       (acc[item.course] = acc[item.course] || []).push(item);
@@ -157,7 +171,9 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
   }, [menuItems]);
 
   // --- Render Functions for Removal Section ---
+  // Renders a single food item card in the "Remove Items" list
   const renderMenuItemCard = ({ item }: { item: MenuItem }) => {
+    // Check if the item is currently marked for removal to change its style
     const isMarkedForRemoval = itemsToRemove.has(item.id);
     const imageSource = typeof item.image === 'string' ? { uri: item.image } : item.image;
 
@@ -178,10 +194,12 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
     );
   };
 
+  // Renders the entire drinks section (hot and cold) for the "Remove Items" list
   const renderDrinksSection = () => (
      <View>
        <Text style={styles.courseHeader}>Drinks</Text>
        <View style={styles.drinksContainer}>
+         {/* Cold Drinks List */}
          <Text style={styles.drinksSubHeader}>Cold drinks</Text>
          {drinksData['Cold drinks'].map((drink, index) => {
            const drinkId = `cold-${drink.name.replace(/\s+/g, '-')}`;
@@ -198,6 +216,7 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
              </View>
            );
          })}
+         {/* Hot Drinks List */}
          <Text style={[styles.drinksSubHeader, { marginTop: 15 }]}>Hot drinks</Text>
          {drinksData['Hot drinks'].map((drink, index) => {
            const drinkId = `hot-${drink.name.replace(/\s+/g, '-')}`;
@@ -218,7 +237,7 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
      </View>
   );
 
-  // Header component for the removal section, showing stats
+  // Header component for the "Remove Items" list, showing stats and instructions
   const RemovalListHeader = () => {
     return (
       <>
@@ -256,7 +275,7 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
               <Text style={styles.title}>Manage Menu Items</Text>
             </View>
 
-            {/* --- Add Item Section --- */}
+            {/* --- Add New Item Form --- */}
             <Text style={styles.sectionTitle}>Add New Item</Text>
             <View style={styles.formSection}>
               <Text style={styles.label}>Dish/Drink Name</Text>
@@ -267,6 +286,7 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
                 onChangeText={setDishName}
               />
 
+              {/* Description field only shows for food items, not drinks */}
               {!isDrink && (
                 <>
                   <Text style={styles.label}>Description</Text>
@@ -292,6 +312,7 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
                 </Picker>
               </View>
 
+              {/* Price field is always visible */}
               <>
                 <Text style={styles.label}>Price</Text>
                 <TextInput
@@ -305,6 +326,7 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
             </View>
 
             <View style={styles.middleSection}>
+              {/* Image preview and upload button only show for food items */}
               {!isDrink && (
                 <>
                   {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
@@ -319,7 +341,7 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
               </TouchableOpacity>
             </View>
 
-            {/* --- Remove Item Section --- */}
+            {/* --- Remove Existing Items List --- */}
             <SectionList
               sections={menuSections}
               keyExtractor={(item) => item.id}
@@ -331,7 +353,7 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
               scrollEnabled={false} // Disable SectionList's own scroll as it's inside a ScrollView
             />
 
-            {/* --- Action Buttons --- */}
+            {/* --- Footer Action Buttons --- */}
             <View style={styles.footerButtons}>
               <TouchableOpacity style={styles.saveChangesButton} onPress={handleSaveChanges}>
                 <Text style={styles.footerButtonText}>Save Changes</Text>
@@ -433,15 +455,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 15,
   },
-  saveButton: { // For adding item
-    backgroundColor: '#c98b2fff', // Green for add
+  saveButton: { 
+    backgroundColor: '#c98b2fff', 
     paddingVertical: 12,
     paddingHorizontal: 40,
     borderRadius: 20,
   },
   buttonText: {
     fontWeight: 'bold',
-    color: '#fff', // White text for save/add buttons
+    color: '#fff', 
   },
   imagePreview: {
     width: 100,
@@ -494,7 +516,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   removalListContent: {
-    paddingHorizontal: 5, // Slightly less padding for the list itself
+    paddingHorizontal: 5, 
     paddingBottom: 30,
   },
   menuItemCard: {
@@ -508,7 +530,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemMarkedForRemoval: {
-    backgroundColor: '#ffdddd', // Highlight items marked for removal
+    backgroundColor: '#ffdddd', 
     borderColor: '#c00',
   },
   itemImage: {
@@ -532,14 +554,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   removeButton: {
-    backgroundColor: '#dc3545', // Red for remove
+    backgroundColor: '#dc3545', 
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
     alignSelf: 'flex-end',
   },
   removeButtonActive: {
-    backgroundColor: '#ffc107', // Orange for undo
+    backgroundColor: '#ffc107', 
   },
   removeButtonText: {
     color: '#fff',
@@ -573,7 +595,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   drinkRemoveButton: {
-    backgroundColor: '#dc3545', // Red for remove
+    backgroundColor: '#dc3545', 
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -595,19 +617,19 @@ const styles = StyleSheet.create({
     width: '100%', 
   },
   saveChangesButton: {
-    backgroundColor: '#6c86a1ff', // Blue for save changes
+    backgroundColor: '#6c86a1ff', 
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 20,
   },
   menuHomeButton: {
-    backgroundColor: '#43644eff', // Grey for menu home
+    backgroundColor: '#43644eff', 
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 20,
   },
   logoutButton: {
-    backgroundColor: '#bd7d1cff', // Distinct color for logout
+    backgroundColor: '#bd7d1cff', 
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 20,

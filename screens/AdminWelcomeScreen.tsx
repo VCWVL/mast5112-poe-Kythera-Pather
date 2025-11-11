@@ -4,17 +4,20 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList, ScreenProps } from "../App";
 
 type AdminNavProp = StackNavigationProp<RootStackParamList, "WelcomeChef">;
-// Use a partial ScreenProps to get access to menuItems and drinksData
+// A type for this screen's props, including navigation and the menu/drinks data it needs
 type Props = { navigation: AdminNavProp } & Partial<Pick<ScreenProps<'WelcomeChef'>, 'menuItems' | 'drinksData'>>;
 
+// This is the welcome screen for the admin (chef)
 export default function WelcomeChefScreen({ navigation, menuItems, drinksData }: Props) {
   return (
+    // The main container with a background image
     <ImageBackground
     // Make sure you have a background.jpg in your assets folder
       source={require("../assets/Background.jpg")} 
       // Set the style to cover the entire screen
       style={styles.container} resizeMode="cover"
     >
+      {/* A semi-transparent overlay to make text more readable */}
       <View style={styles.overlay}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.headerContainer}>
@@ -23,6 +26,7 @@ export default function WelcomeChefScreen({ navigation, menuItems, drinksData }:
           </View>
           <Image source={require("../assets/Menu Banner.jpg")} style={styles.image} />
 
+          {/* Button to navigate to the main menu screen */}
           <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.navigate("Menu", { isAdmin: true })}
@@ -30,6 +34,7 @@ export default function WelcomeChefScreen({ navigation, menuItems, drinksData }:
             <Text style={styles.buttonText}>Menu</Text>
           </TouchableOpacity>
 
+          {/* Button to navigate to the filter screen */}
           <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.navigate("FilterByCourse", { currentMenuItems: menuItems || [], currentDrinksData: drinksData! })}
@@ -37,6 +42,7 @@ export default function WelcomeChefScreen({ navigation, menuItems, drinksData }:
             <Text style={styles.buttonText}>Filter by Course</Text>
           </TouchableOpacity>
 
+          {/* Button to navigate to the menu management screen */}
           <TouchableOpacity
             style={styles.button} // Pass currentMenuItems and currentDrinksData
             onPress={() => navigation.navigate("ManageMenu", { currentMenuItems: menuItems || [], currentDrinksData: drinksData! })}

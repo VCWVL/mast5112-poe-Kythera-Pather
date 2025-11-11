@@ -14,12 +14,14 @@ const predefinedCourses: Course[] = [
   'Drinks',
 ];
 
-// Main App componetent for displaying the menu
+// This is the main screen for displaying the restaurant menu
 export default function MenuScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData, orderedItems, setOrderedItems }: Props) {
+  // Check if the logged-in user is an admin
   const isAdmin = route.params?.isAdmin;
+  // Use the custom hook to get menu statistics like average prices
   const { totalItemCount, getAveragePrice, getAverageDrinkPrice } = useMenuStats(menuItems, drinksData);
 
-  // Group menu items by course for SectionList
+  // Groups the flat list of menu items into an object with courses as keys
   const groupedMenu = menuItems.reduce((acc, item) => {
     (acc[item.course] = acc[item.course] || []).push(item);
     return acc;
@@ -33,6 +35,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
       data: groupedMenu[course],
     }));
 
+  // Renders a single card for a food item
   const renderMenuItemCard = ({ item }: { item: MenuItem }) => {
     // Use the uploaded image URI if it exists, otherwise use the require() path
     const imageSource = typeof item.image === 'string' ? { uri: item.image } : item.image;
@@ -60,7 +63,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
     );
   };
 
-  // Header component displaying logo, title, navigation buttons, and stats
+  // A component that renders the top part of the screen, including stats and navigation
   const ListHeader = () => {
     return (
       <>
@@ -69,6 +72,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
           <Text style={styles.headerTitle}>The Menu</Text>
           <View style={styles.headerNavContainer}>
 
+            {/* Navigation buttons */}
             <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('FilterByCourse', { currentMenuItems: menuItems, currentDrinksData: drinksData })}>
               <Text style={styles.headerNavText}>Filter by course</Text>
             </TouchableOpacity>
@@ -76,6 +80,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
             <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('Checkout')}>
               <Text style={styles.headerNavText}>Checkout ({orderedItems.length})</Text>
             </TouchableOpacity>
+            {/* This button only shows if the user is an admin */}
             {isAdmin && (
               <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('ManageMenu', { currentMenuItems: menuItems, currentDrinksData: drinksData })}>
                 <Text style={styles.headerNavText}>Remove Items</Text>
@@ -84,6 +89,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
 
           </View>
         </View>
+        {/* The container for the statistics boxes */}
         <View style={styles.statsContainer}>
           <View style={styles.statBox}>
             <Text style={styles.statTitle}>Total number of menu items</Text>
@@ -119,7 +125,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
     Alert.alert("Item Added", `${drink.name} has been added to your order.`);
   };
 
-  // Render the drinks section separately
+  // Renders the list of hot and cold drinks
   const renderDrinksSection = () => (
     <View>
       <Text style={styles.courseHeader}>Drinks</Text>
@@ -148,11 +154,11 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
   );
 
   return (
-    // Main container with background image and safe area 
+    // The main container with a background image
     <ImageBackground source={require('../assets/Background.jpg')} style={styles.ImageBackground} resizeMode="stretch">
       <SafeAreaView style={styles.overlay}>
+        {/* SectionList is used to display the menu items grouped by course */}
         <SectionList
-        // SectionList to display menu items grouped by course
             sections={menuSections}
             keyExtractor={(item) => item.id}
             renderItem={renderMenuItemCard}

@@ -136,6 +136,27 @@ Includes:
 
 - Provides buttons to return to the Menu or finalize the checkout.
 
+### Added a new screen- ManageMenuScreen.tsx
+- Its the editmenuscreen.tsc and RemoveMenuScreen.tsx togethere to make it more simple and easy for the chef to use
+
+#### On the top is:
+- Enables the Chef to add new dishes or drinks.
+
+- Dynamically adjusts inputs based on the selected category (e.g., drinks vs. food).
+
+- Utilizes expo-image-picker for optional photo uploads.
+
+- Includes validation and visual feedback before saving.
+
+#### On the Bottom after that:
+- Displays all current menu items in a selectable list.
+
+- Allows multi-select functionality for item removal.
+
+ - Remove button on the dish items where you press whihc item you want to remove, you can also press after the undo which reverts the changes. 
+
+- Includes “Save Changers”, “Menu-Home” and “Logout” actions at the bottom of the screen.
+
 ---
 
 # Technology Stack
@@ -169,7 +190,53 @@ Includes:
 
 ---
 
-## Youtube link to the video of the app working.
+# ChangeLog
+##  Part 2
+### 15 October 2025
+- Started Part 2 of the project
+- Added new screens to the projecy.
+
+### 16 October 2025
+- Added a login screen to the project for the customers and chef can enter the password and password. after the chef would either go to the chef navigation or through the customer navigation but the customer will only be aloud to go through their navigation. 
+
+### 17 october 2025
+- Added the code to the login admin welcome screen and App.tsx
+
+### 18 october 2025
+- Added code to the menu screen and reddid some code for the login.
+
+### 19 October 2025
+- Added code to the edit menu screen where the chef can add dishes to the menu. 
+- Added imagies to the menu screen for the food items so the customer can look how their food would be.
+-  Tried to fix the scroll view
+- Added an remove item screen so the chef could remove the menu items.
+
+### 21 october 2025
+- Fixed the background image and still fixing the scroll view.
+- Added a logout button on the chef menu so all the chnages he did wouldbe saved for the customer to see on their menu screen.
+- Checkout screen was added so the customer could see their menu items they order and it calculates the total amount.
+
+## Part 3
+### 8 November 202
+- Started Part 3 of the project
+
+### 10 November 2025
+- Added to redo the folder and push it to another branch Master
+- It gave problems, such as some of the codes were taken out and it wasnt running on bluestacks, expo go
+- Master branch was created
+
+### 11 November 2025
+- Added a managemenu screen where the chef can add and remove items on the same screen as required in the POE
+- fixing some areas that wasnt working and added buttons
+- changing the code or adding to fix the rubric of the POE
+- changed the colour of the button and the sizes in ManageMenuScreen.tsx
+- Added comments to the code for all the screens.
+
+### 12 November 2025
+- Fixed some features from the feedback i got back from my lecture from part 2
+
+
+## Youtube link to the video of the app working. - PART 2
 https://youtu.be/-S0EirDpphQ 
 
  ---

@@ -234,6 +234,9 @@ Includes:
 
 ### 12 November 2025
 - Fixed some features from the feedback i got back from my lecture from part 2
+- Runs on Bluestack, EXPO-GO
+
+---
 
 
 ## Youtube link to the video of the app working. - PART 2

@@ -541,6 +541,7 @@ const styles = StyleSheet.create({
   },
   itemDetails: {
     flex: 1,
+    flexShrink: 1, // Allow this container to shrink to make room for the button
   },
   itemName: {
     fontSize: 15,

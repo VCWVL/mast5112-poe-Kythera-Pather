@@ -177,9 +177,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-   backgroundColor: '#000000ff',
-    
+    flex: 1,    
   },
   overlay: {
     // This ensures the safe area fills the background
@@ -192,9 +190,8 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
   },
   ImageBackground: {
-    
-    height: '100%',
-    justifyContent: 'center',
+    flex: 1, // Use flex: 1 to ensure it fills the screen
+    width: '100%',
   },
   header: { 
     flexDirection: 'row', 
@@ -223,8 +220,8 @@ const styles = StyleSheet.create({
   },
   headerNavButton: { 
     backgroundColor: '#2e2b2bff', 
-    paddingHorizontal: 5, 
-    paddingVertical: 1, 
+    paddingHorizontal: 8, 
+    paddingVertical: 4, 
     borderWidth: 1, 
     borderColor: '#fcf9f9ff', 
     borderRadius: 3, 

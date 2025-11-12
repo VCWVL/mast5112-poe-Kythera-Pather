@@ -157,6 +157,10 @@ Includes:
 
 - Includes “Save Changers”, “Menu-Home” and “Logout” actions at the bottom of the screen.
 
+### AddItemScree.tsx
+- AddItemForm.tsx is a self-contained and reusable component that displays and manages the form for adding a new food or drink item to your menu.
+- It was Created this separate file to solve the earlier problem where typing in the "Description" field would lose focus. By moving all the form's logic and state into its own component, we isolated it from the rest of the ManageMenuScreen, making it more stable and efficient.
+
 ---
 
 # Technology Stack
@@ -235,6 +239,10 @@ Includes:
 ### 12 November 2025
 - Fixed some features from the feedback i got back from my lecture from part 2
 - Runs on Bluestack, EXPO-GO
+- AddItemForm.tsx is a self-contained and reusable component that displays and manages the form for adding a new food or drink item to your menu.
+- It was Created this separate file to solve the earlier problem where typing in the "Description" field would lose focus.
+- By moving all the form's logic and state into its own component, we isolated it from the rest of the ManageMenuScreen, making it more stable and efficient and so it wouldnt crash.
+- Added new comments to the screen. 
 
 ---
 

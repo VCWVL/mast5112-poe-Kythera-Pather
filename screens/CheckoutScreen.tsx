@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: 16,
-    flex: 1, // Allow text to take up available space
+    flex: 1,
   },
   emptyText: {
     textAlign: 'center',

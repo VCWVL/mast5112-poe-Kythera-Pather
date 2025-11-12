@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     fontSize: 20, 
     fontWeight: "bold", 
     color: "#fff" 
-  }, // Changed color for readability
+  }, 
   button: {
     backgroundColor: "#000",
     paddingVertical: 12,

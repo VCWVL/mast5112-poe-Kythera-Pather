@@ -292,8 +292,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
-  // We can remove form-specific styles from here if they are fully contained in AddItemForm.tsx
-  // For simplicity, we'll leave them so both files compile, but in a real project, you'd clean this up.
   formSection: {
     width: '100%',
     marginBottom: 20,
@@ -356,7 +354,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
 
-  // Styles for Removal Section (adapted from RemoveItemsScreen)
+  
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -423,7 +421,7 @@ const styles = StyleSheet.create({
   },
   itemDetails: {
     flex: 1,
-    flexShrink: 1, // Allow this container to shrink to make room for the button
+    flexShrink: 1, 
   },
   itemName: {
     fontSize: 15,

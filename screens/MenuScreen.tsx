@@ -182,7 +182,6 @@ const styles = StyleSheet.create({
   overlay: {
     // This ensures the safe area fills the background
     flex: 1, 
-    // Semi-transparent white background
     backgroundColor: 'rgba(255, 255, 255, 0.6)', 
   },
   scrollViewContent: {
@@ -190,7 +189,7 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
   },
   ImageBackground: {
-    flex: 1, // Use flex: 1 to ensure it fills the screen
+    flex: 1, 
     width: '100%',
   },
   header: { 

@@ -1,15 +1,11 @@
 import React, { useState, useCallback, useMemo } from "react";
 import {View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform, ImageBackground, SectionList,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import { Picker } from "@react-native-picker/picker";
 import { ScreenProps, Course, MenuItem, DrinksData, DrinkItem } from "../App";
 import { useMenuStats } from "./useMenuStats";
+import AddItemForm from './AddItemForm'; // Import the new component
 
 type Props = ScreenProps<'ManageMenu'>;
-
-// Course options for adding items (includes specific drink types)
-const addCourseOptions = ['Specials', 'Starter', 'Main Course', 'Dessert', 'Hot Drink', 'Cold Drink'];
 
 // Predefined list of courses for consistent ordering and display (for removal section)
 const displayCourses: Course[] = [
@@ -21,101 +17,42 @@ const displayCourses: Course[] = [
 ];
 
 export default function ManageMenuScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData }: Props) {
-  // State for the "Add New Item" form fields
-  const [dishName, setDishName] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState('');
-  const [price, setPrice] = useState("");
-  const [image, setImage] = useState<string | null>(null);
-
   // State to keep track of items selected for removal
   const [itemsToRemove, setItemsToRemove] = useState<Set<string>>(new Set());
 
   // Custom hook to get menu statistics (like average prices)
   const { totalItemCount, getAveragePrice, getAverageDrinkPrice } = useMenuStats(menuItems, drinksData);
 
-  // A helper to check if the selected category is a drink
-  const isDrink = selectedCourse === 'Hot Drink' || selectedCourse === 'Cold Drink';
-
   // --- Functions for Adding Items ---
 
   // Handles adding a new food or drink item to the menu
-  const handleAddItem = () => {
-    // Basic validation to ensure required fields are filled
-    if (!dishName || !selectedCourse) {
-      Alert.alert("Incomplete Form", "Please provide a name and select a course.");
-      return;
-    }
-
-    if ((!isDrink && !description) || !price) {
-      Alert.alert("Incomplete Form", "Please fill out all required fields.");
-      return;
-    }
-
+  const handleAddItem = (newItem: MenuItem | DrinkItem, isDrink: boolean, course: string) => {
     // Logic for adding a drink
     if (isDrink) {
-      const drinkCategory = selectedCourse === 'Hot Drink' ? 'Hot drinks' : 'Cold drinks';
-      const newDrink: DrinkItem = {
-        name: dishName,
-        price: parseFloat(price),
-      };
+      // Determine the correct category ('Hot drinks' or 'Cold drinks') from the course string.
+      const drinkCategory = course === 'Hot Drink' ? 'Hot drinks' : 'Cold drinks';
+      const newDrink = newItem as DrinkItem;
 
       setDrinksData(prevDrinks => {
         // Check for duplicates before adding
-        if (prevDrinks[drinkCategory].some(d => d.name === dishName)) {
-          Alert.alert("Duplicate Item", `${dishName} already exists in ${drinkCategory}.`);
+        if (prevDrinks[drinkCategory].some(d => d.name === newDrink.name)) {
+          Alert.alert("Duplicate Item", `${newDrink.name} already exists in ${drinkCategory}.`);
           return prevDrinks;
         }
         const newDrinks = [...prevDrinks[drinkCategory], newDrink];
         return { ...prevDrinks, [drinkCategory]: newDrinks };
       });
-      Alert.alert("Success", `${dishName} has been added to ${drinkCategory}.`);
+      Alert.alert("Success", `${newDrink.name} has been added to ${drinkCategory}.`);
     // Logic for adding a food item
     } else {
-      const newItem: MenuItem = {
-        id: `menuItem_${Date.now()}`,
-        name: dishName,
-        description: description,
-        course: selectedCourse as Exclude<Course, 'Drinks'>,
-        price: parseFloat(price),
-        image: image,
-      };
+      const foodItem = newItem as MenuItem;
       // Check for duplicates before adding
-      if (menuItems.some(item => item.name === dishName && item.course === selectedCourse)) {
-        Alert.alert("Duplicate Item", `${dishName} already exists in ${selectedCourse}.`);
+      if (menuItems.some(item => item.name === foodItem.name && item.course === foodItem.course)) {
+        Alert.alert("Duplicate Item", `${foodItem.name} already exists in ${foodItem.course}.`);
         return;
       }
-      setMenuItems(prevItems => [newItem, ...prevItems]);
-      Alert.alert("Success", `${newItem.name} has been added to the menu.`);
-    }
-
-    // Clear the form fields after saving
-    setDishName("");
-    setDescription("");
-    setSelectedCourse('');
-    setPrice("");
-    setImage(null);
-  };
-
-  // Function to open the device's image library to select a photo
-  const pickImage = async () => {
-    // Ask for permission to access photos
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      Alert.alert("Permission Required", "You need to allow access to your photos to upload an image.");
-      return;
-    }
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    // If the user doesn't cancel, set the selected image
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      setMenuItems(prevItems => [foodItem, ...prevItems]);
+      Alert.alert("Success", `${foodItem.name} has been added to the menu.`);
     }
   };
 
@@ -262,111 +199,54 @@ export default function ManageMenuScreen({ navigation, route, menuItems, setMenu
     );
   };
 
+  // Header component for the main list, containing the Add Item form
+  const MainListHeader = () => (
+    <>
+            <View style={styles.header}>
+              <Image source={require("../assets/Logo.jpg")} style={styles.logo} />
+              <Text style={styles.title}>Manage Menu Items</Text>
+            </View>
+            
+            {/* --- Add New Item Form (Now a separate component) --- */}
+            <AddItemForm onAddItem={handleAddItem} />
+
+      {/* The header for the removal section is now part of the main list */}
+      <RemovalListHeader />
+      {renderDrinksSection()}
+    </>
+  );
+
   return (
     <ImageBackground source={require("../assets/Background.jpg")} style={styles.container} resizeMode="cover">
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-          <View style={styles.innerContainer}>
-            <View style={styles.header}>
-              <Image source={require("../assets/Logo.jpg")} style={styles.logo} />
-              <Text style={styles.title}>Manage Menu Items</Text>
-            </View>
+        <View style={styles.innerContainer}>
+          {/* --- Main List for Adding and Removing Items --- */}
+          <SectionList
+            sections={menuSections}
+            keyExtractor={(item) => item.id}
+            renderItem={renderMenuItemCard}
+            renderSectionHeader={({ section: { title } }) => <Text style={styles.courseHeader}>{title}</Text>}
+            ListHeaderComponent={MainListHeader}
+            contentContainerStyle={styles.removalListContent}
+            extraData={itemsToRemove} // Ensures re-render when an item is marked
+          />
 
-            {/* --- Add New Item Form --- */}
-            <Text style={styles.sectionTitle}>Add New Item</Text>
-            <View style={styles.formSection}>
-              <Text style={styles.label}>Dish/Drink Name</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter Name"
-                value={dishName}
-                onChangeText={setDishName}
-              />
-
-              {/* Description field only shows for food items, not drinks */}
-              {!isDrink && (
-                <>
-                  <Text style={styles.label}>Description</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter description"
-                    value={description}
-                    onChangeText={setDescription}
-                    multiline
-                  />
-                </>
-              )}
-
-              <Text style={styles.label}>Select Course/Category</Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={selectedCourse}
-                  onValueChange={(itemValue) => setSelectedCourse(itemValue)}
-                  style={styles.picker}
-                >
-                  <Picker.Item label="Select a course/category" value="" />
-                  {addCourseOptions.map(c => <Picker.Item key={c} label={c} value={c} />)}
-                </Picker>
-              </View>
-
-              {/* Price field is always visible */}
-              <>
-                <Text style={styles.label}>Price</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter Price"
-                  value={price}
-                  onChangeText={setPrice}
-                  keyboardType="numeric"
-                />
-              </>
-            </View>
-
-            <View style={styles.middleSection}>
-              {/* Image preview and upload button only show for food items */}
-              {!isDrink && (
-                <>
-                  {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
-                  <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-                    <Text style={styles.buttonText}>Upload Image</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-
-              <TouchableOpacity style={styles.saveButton} onPress={handleAddItem}>
-                <Text style={styles.buttonText}>Add Item</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* --- Remove Existing Items List --- */}
-            <SectionList
-              sections={menuSections}
-              keyExtractor={(item) => item.id}
-              renderItem={renderMenuItemCard}
-              renderSectionHeader={({ section: { title } }) => <Text style={styles.courseHeader}>{title}</Text>}
-              ListHeaderComponent={() => (<><RemovalListHeader />{renderDrinksSection()}</>)}
-              contentContainerStyle={styles.removalListContent}
-              extraData={itemsToRemove} // Ensures re-render when an item is marked
-              scrollEnabled={false} // Disable SectionList's own scroll as it's inside a ScrollView
-            />
-
-            {/* --- Footer Action Buttons --- */}
-            <View style={styles.footerButtons}>
-              <TouchableOpacity style={styles.saveChangesButton} onPress={handleSaveChanges}>
-                <Text style={styles.footerButtonText}>Save Changes</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuHomeButton} onPress={() => navigation.navigate("Menu", {})}>
-                <Text style={styles.footerButtonText}>Menu-Home</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate("Login")}>
-                <Text style={styles.footerButtonText}>Logout</Text>
-              </TouchableOpacity>
-            </View>
+          {/* --- Footer Action Buttons --- */}
+          <View style={styles.footerButtons}>
+            <TouchableOpacity style={styles.saveChangesButton} onPress={handleSaveChanges}>
+              <Text style={styles.footerButtonText}>Save Changes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuHomeButton} onPress={() => navigation.navigate("Menu", {})}>
+              <Text style={styles.footerButtonText}>Menu-Home</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate("Login")}>
+              <Text style={styles.footerButtonText}>Logout</Text>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+        </View>
       </KeyboardAvoidingView>
     </ImageBackground>
   );
@@ -378,10 +258,10 @@ const styles = StyleSheet.create({
   },
   scrollViewContainer: {
     flexGrow: 1,
-    padding: 20,
   },
   innerContainer: {
     flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
   },
   header: {
     flexDirection: 'row',
@@ -412,6 +292,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
+  // We can remove form-specific styles from here if they are fully contained in AddItemForm.tsx
+  // For simplicity, we'll leave them so both files compile, but in a real project, you'd clean this up.
   formSection: {
     width: '100%',
     marginBottom: 20,
@@ -516,7 +398,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   removalListContent: {
-    paddingHorizontal: 5, 
+    paddingHorizontal: 20, 
     paddingBottom: 30,
   },
   menuItemCard: {
@@ -613,7 +495,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    marginTop: 30,
+    paddingVertical: 10,
     paddingHorizontal: 10,
     width: '100%', 
   },

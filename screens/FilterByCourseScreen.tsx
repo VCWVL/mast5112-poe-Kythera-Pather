@@ -123,21 +123,20 @@ export default function FilterByCourseScreen({ navigation, route, menuItems, set
         </View>
 
         {/* The main content area that shows either drinks or filtered food items */}
-        <ScrollView style={styles.contentScrollView}>
-          {activeFilter === 'Drinks' ? (
-            renderDrinksSection()
-          ) : (
-            // It display filtered menu items
-            <FlatList
-              data={filteredItems}
-              renderItem={renderMenuItemCard}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={styles.listContentContainer}
-              ListEmptyComponent={<Text style={styles.emptyText}>No items found for this course.</Text>}
-              scrollEnabled={false} // Disable FlatList's own scroll as it's inside a ScrollView
-            />
-          )}
-        </ScrollView>
+        {activeFilter === 'Drinks' ? (
+          <ScrollView style={styles.contentScrollView}>
+            {renderDrinksSection()}
+          </ScrollView>
+        ) : (
+          <FlatList
+            style={styles.contentScrollView}
+            data={filteredItems}
+            renderItem={renderMenuItemCard}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContentContainer}
+            ListEmptyComponent={<Text style={styles.emptyText}>No items found for this course.</Text>}
+          />
+        )}
 
         {/* Footer buttons for navigation */}
         <View style={styles.footerContainer}>
